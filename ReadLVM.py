@@ -69,6 +69,15 @@ def read_lvm_x_values(file_path):
     return values
 
 
-def read_lvms(file_path):
+def read_lvms(file_path, skip_count=0):
     values = read_lvm_x_values(file_path)
-    return values
+
+    if skip_count < 0:
+        raise ValueError(f"skip_count must not be negative, got {skip_count}")
+    if len(values) < skip_count:
+        raise ValueError(
+            f"Need at least {skip_count} LVM values after skipping background data, "
+            f"got {len(values)}"
+        )
+
+    return values[skip_count:]

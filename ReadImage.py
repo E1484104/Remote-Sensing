@@ -4,9 +4,9 @@ import re
 import cv2
 import numpy as np
 
-# ====== SPECIFY IMAGE SUFFIX AND IMAGE SIZE ======
+# ====== SPECIFY IMAGE SUFFIX ======
 IMAGE_SUFFIXES = {".png"}
-IMAGE_SIZE = (20, 20)
+BACKGROUND_IMAGE_COUNT = 3000
 
 # ====== ENSURE IMAGE NAME ENDS WITH ITS INDEX ======
 def image_number_sort_key(image_path):
@@ -16,13 +16,13 @@ def image_number_sort_key(image_path):
     return int(match.group(1))
 
 # ====== ENSURE IMAGE DATA TYPE IS U16 ======
-def image_to_u16_matrix(image, image_path):
+def image_to_u16_matrix(image, image_path, image_size):
     if image.ndim != 2:
         raise ValueError(
             f"Expected a 2D image, got shape {image.shape}: {image_path}"
         )
 
-    expected_height, expected_width = IMAGE_SIZE
+    expected_height, expected_width = image_size
     if image.shape != (expected_height, expected_width):
         raise ValueError(
             f"Expected image size {expected_width}x{expected_height}, "
@@ -57,27 +57,72 @@ def process_image(image_matrix, image_path):
     return result
 
 
-def read_images(folder_path):
+def read_image_matrix(image_path, image_size):
+    image = cv2.imread(str(image_path), cv2.IMREAD_UNCHANGED)
+    if image is None:
+        raise ValueError(f"Cannot read image: {image_path}")
+    return image_to_u16_matrix(image, image_path, image_size)
+
+
+def calculate_background_noise(image_paths, image_size):
+    if len(image_paths) < BACKGROUND_IMAGE_COUNT:
+        raise ValueError(
+            f"Need at least {BACKGROUND_IMAGE_COUNT} images to calculate background noise, "
+            f"got {len(image_paths)}"
+        )
+
+    background_sum = np.zeros(image_size, dtype=np.float64)
+
+    for image_path in image_paths[:BACKGROUND_IMAGE_COUNT]:
+        image_matrix = read_image_matrix(image_path, image_size)
+        background_sum += image_matrix
+
+    background_noise = background_sum / BACKGROUND_IMAGE_COUNT
+
+    if np.any(background_noise == 0):
+        raise ZeroDivisionError("Background noise contains zero value")
+
+    return background_noise
+
+
+def read_images(folder_path, image_size, remove_background=False, skip_count=0):
     target_folder = Path(folder_path)
 
     if not target_folder.exists():
         raise FileNotFoundError(f"Folder does not exist: {target_folder}")
     if not target_folder.is_dir():
         raise NotADirectoryError(f"Path is not a folder: {target_folder}")
+    if skip_count < 0:
+        raise ValueError(f"skip_count must not be negative, got {skip_count}")
+    if len(image_size) != 2:
+        raise ValueError(f"image_size must be (height, width), got {image_size}")
 
     image_paths = []
-    for image_path in target_folder.iterdir():
-        if image_path.is_file() and image_path.suffix.lower() in IMAGE_SUFFIXES:
-            image_paths.append(image_path)
+    for item in target_folder.iterdir():
+        if item.is_file() and item.suffix.lower() in IMAGE_SUFFIXES:
+            image_paths.append(item)
+
+    sorted_image_paths = sorted(image_paths, key=image_number_sort_key)
+
+    if skip_count > len(sorted_image_paths):
+        raise ValueError(
+            f"skip_count is larger than image count, skip_count={skip_count}, "
+            f"image count={len(sorted_image_paths)}"
+        )
+
+    background_noise = None
+    if remove_background:
+        background_noise = calculate_background_noise(sorted_image_paths, image_size)
+
+    result_image_paths = sorted_image_paths[skip_count:]
 
     actual_results = []
-    for image_path in sorted(image_paths, key=image_number_sort_key):
-        image = cv2.imread(str(image_path), cv2.IMREAD_UNCHANGED)
-        if image is None:
-            print(f"Skip unreadable image: {image_path}")
-            continue
+    for image_path in result_image_paths:
+        image_matrix = read_image_matrix(image_path, image_size)
 
-        image_matrix = image_to_u16_matrix(image, image_path)
+        if remove_background:
+            image_matrix = image_matrix / background_noise
+
         result = process_image(image_matrix, image_path)
         actual_results.append(result)
 

@@ -1,13 +1,53 @@
-from ReadImage import read_images
+from ReadImage import BACKGROUND_IMAGE_COUNT, read_images
 from ReadLVM import read_lvms
-from PlotResults import plot_results
+from PlotResults import plot_image_comparison, plot_results
 
 # ====== SPECIFY TARGET FOLDER PATH ======
-TARGET_FOLDER = r"..\20260724\data\test1_image\cam2"
-TARGET_LVM = r"..\20260724\data\Cam2_test1.lvm"
+FOLDER_NAME = "test1"
+TARGET_IMAGE_1 = rf"..\20260724\data\{FOLDER_NAME}_image\cam1"
+TARGET_IMAGE_2 = rf"..\20260724\data\{FOLDER_NAME}_image\cam2"
+TARGET_LVM_1 = r"..\20260724\data\Cam1_test1.lvm"
+TARGET_LVM_2 = r"..\20260724\data\Cam2_test1.lvm"
+
+IMAGE_SIZE_1 = (40, 40)
+IMAGE_SIZE_2 = (20, 20)
+
+
+def get_processing_settings(image_folder_name):
+
+    if image_folder_name == TARGET_IMAGE_2:
+        return {
+            "image_size": IMAGE_SIZE_2,
+            "remove_background": True,
+        }
+
+    if image_folder_name == TARGET_IMAGE_1:
+        return {
+            "image_size": IMAGE_SIZE_1,
+            "remove_background": False,
+        }
+
+    raise ValueError(f"Unsupported camera name: {image_folder_name}")
 
 
 if __name__ == '__main__':
-    image_results = read_images(TARGET_FOLDER)
-    lvm_results = read_lvms(TARGET_LVM)
-    plot_results(image_results, lvm_results)
+    settings_cam1 = get_processing_settings(TARGET_IMAGE_1)
+    settings_cam2 = get_processing_settings(TARGET_IMAGE_2)
+    skip_count = BACKGROUND_IMAGE_COUNT
+    image_results1 = read_images(
+        TARGET_IMAGE_1,
+        image_size=settings_cam1["image_size"],
+        remove_background=settings_cam1["remove_background"],
+        skip_count=skip_count,
+    )
+    image_results2 = read_images(
+        TARGET_IMAGE_2,
+        image_size=settings_cam2["image_size"],
+        remove_background=settings_cam2["remove_background"],
+        skip_count=skip_count
+    )
+    lvm_results1 = read_lvms(TARGET_LVM_1, skip_count=skip_count)
+    lvm_results2 = read_lvms(TARGET_LVM_2, skip_count=skip_count)
+    plot_results(image_results1, lvm_results1)  # Remote
+    plot_results(image_results2, lvm_results2)  # Contact
+    plot_image_comparison(image_results1, image_results2)
