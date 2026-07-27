@@ -6,7 +6,7 @@ import numpy as np
 
 # ====== SPECIFY IMAGE SUFFIX AND IMAGE SIZE ======
 IMAGE_SUFFIXES = {".png"}
-IMAGE_SIZE = (40, 40)
+IMAGE_SIZE = (20, 20)
 
 # ====== ENSURE IMAGE NAME ENDS WITH ITS INDEX ======
 def image_number_sort_key(image_path):
@@ -41,19 +41,19 @@ def image_to_u16_matrix(image, image_path):
 
 
 def process_image(image_matrix, image_path):
-    print(f"Calculating: {image_path}")
-    print(f"Matrix shape: {image_matrix.shape}, dtype: {image_matrix.dtype}")
+    # print(f"Calculating: {image_path}")
+    # print(f"Matrix shape: {image_matrix.shape}, dtype: {image_matrix.dtype}")
 
     mean_value = np.mean(image_matrix)
     std_value = np.std(image_matrix)
-    print(f"Mean: {mean_value}, Std: {std_value}")
+    # print(f"Mean: {mean_value}, Std: {std_value}")
 
     if std_value == 0:
         raise ZeroDivisionError(f"Standard deviation is zero: {image_path}")
 
     result = (mean_value / std_value) ** 2
-    print(f"Result: {result}")
-    print("")
+    # print(f"Result: {result}")
+    # print("")
     return result
 
 
