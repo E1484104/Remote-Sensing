@@ -42,21 +42,23 @@ def plot_results(image_results, lvm_results):
 
 
 def plot_image_comparison(cam1_results, cam2_results):
-    compare_length = min(len(cam1_results), len(cam2_results))
 
-    if compare_length == 0:
+    if len(cam1_results) != len(cam2_results):
+        print("Cam1 results length:", len(cam1_results))
+        print("Cam2 results length:", len(cam2_results))
+        print("Data do not match")
+        return
+
+    if len(cam1_results) == 0:
         print("Cam1 results length:", len(cam1_results))
         print("Cam2 results length:", len(cam2_results))
         print("No data available for comparison")
         return
 
-    cam1_results = cam1_results[:compare_length]
-    cam2_results = cam2_results[:compare_length]
-    indices = range(compare_length)
+    indices = range(len(cam1_results))
 
     print("Cam1 results length:", len(cam1_results))
     print("Cam2 results length:", len(cam2_results))
-    print("Comparison length:", compare_length)
 
     fig, ax1 = plt.subplots(figsize=(14, 6), dpi=150)
     ax2 = ax1.twinx()

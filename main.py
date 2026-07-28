@@ -3,7 +3,7 @@ from ReadLVM import read_lvms
 from PlotResults import plot_image_comparison, plot_results
 
 # ====== SPECIFY TARGET FOLDER PATH ======
-TEST_INDEX = "test1"
+TEST_INDEX = "test8"
 TEST_DATE = "20260728"
 TARGET_IMAGE_1 = rf"..\{TEST_DATE}\{TEST_INDEX}\Cam1_Image"
 TARGET_IMAGE_2 = rf"..\{TEST_DATE}\{TEST_INDEX}\Cam2_Image"
@@ -49,6 +49,6 @@ if __name__ == '__main__':
     )
     lvm_results1 = read_lvms(TARGET_LVM_1, skip_count=skip_count)
     lvm_results2 = read_lvms(TARGET_LVM_2, skip_count=skip_count)
-    plot_results(image_results1, lvm_results1)  # Remote
-    plot_results(image_results2, lvm_results2)  # Contact
+    # plot_results(image_results1, lvm_results1)  # Remote
+    # plot_results(image_results2, lvm_results2)  # Contact
     plot_image_comparison(image_results1, image_results2)
