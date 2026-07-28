@@ -3,11 +3,12 @@ from ReadLVM import read_lvms
 from PlotResults import plot_image_comparison, plot_results
 
 # ====== SPECIFY TARGET FOLDER PATH ======
-FOLDER_NAME = "test1"
-TARGET_IMAGE_1 = rf"..\20260724\data\{FOLDER_NAME}_image\cam1"
-TARGET_IMAGE_2 = rf"..\20260724\data\{FOLDER_NAME}_image\cam2"
-TARGET_LVM_1 = r"..\20260724\data\Cam1_test1.lvm"
-TARGET_LVM_2 = r"..\20260724\data\Cam2_test1.lvm"
+TEST_INDEX = "test1"
+TEST_DATE = "20260728"
+TARGET_IMAGE_1 = rf"..\{TEST_DATE}\{TEST_INDEX}\Cam1_Image"
+TARGET_IMAGE_2 = rf"..\{TEST_DATE}\{TEST_INDEX}\Cam2_Image"
+TARGET_LVM_1 = rf"..\{TEST_DATE}\{TEST_INDEX}\Cam1.lvm"
+TARGET_LVM_2 = rf"..\{TEST_DATE}\{TEST_INDEX}\Cam2.lvm"
 
 IMAGE_SIZE_1 = (40, 40)
 IMAGE_SIZE_2 = (20, 20)
