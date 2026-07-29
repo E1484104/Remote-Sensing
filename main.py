@@ -1,5 +1,6 @@
 from ReadImage import BACKGROUND_IMAGE_COUNT, read_images
 from ReadLVM import read_lvms
+from ExportImages import prompt_and_copy_image_segments
 from PlotResults import plot_image_comparison, plot_results
 
 # ====== SPECIFY TARGET FOLDER PATH ======
@@ -9,9 +10,12 @@ TARGET_IMAGE_1 = rf"..\{TEST_DATE}\{TEST_INDEX}\Cam1_Image"
 TARGET_IMAGE_2 = rf"..\{TEST_DATE}\{TEST_INDEX}\Cam2_Image"
 TARGET_LVM_1 = rf"..\{TEST_DATE}\{TEST_INDEX}\Cam1.lvm"
 TARGET_LVM_2 = rf"..\{TEST_DATE}\{TEST_INDEX}\Cam2.lvm"
+TARGET_EXTRACTED_IMAGE_1 = rf"..\{TEST_DATE}\{TEST_INDEX}\Cam1_Extracted_Image"
+TARGET_EXTRACTED_IMAGE_2 = rf"..\{TEST_DATE}\{TEST_INDEX}\Cam2_Extracted_Image"
 
 IMAGE_SIZE_1 = (40, 40)
 IMAGE_SIZE_2 = (20, 20)
+COPY_IMAGE_COUNT = 2000
 
 
 def get_processing_settings(image_folder_name):
@@ -52,3 +56,32 @@ if __name__ == '__main__':
     # plot_results(image_results1, lvm_results1)  # Remote
     # plot_results(image_results2, lvm_results2)  # Contact
     plot_image_comparison(image_results1, image_results2)
+
+    copied_result = prompt_and_copy_image_segments(
+        {
+            "cam1": {
+                "source_folder": TARGET_IMAGE_1,
+                "output_root": TARGET_EXTRACTED_IMAGE_1,
+            },
+            "cam2": {
+                "source_folder": TARGET_IMAGE_2,
+                "output_root": TARGET_EXTRACTED_IMAGE_2,
+            },
+        },
+        skip_count=skip_count,
+        image_count=COPY_IMAGE_COUNT,
+    )
+
+    if copied_result is not None:
+        start_index = copied_result["start_index"]
+        copied_count = min(
+            len(copied_segment["selected_paths"])
+            for copied_segment in copied_result["copied_segments"].values()
+        )
+        end_index = start_index + copied_count
+
+        plot_image_comparison(
+            image_results1[start_index:end_index],
+            image_results2[start_index:end_index],
+            start_index=start_index,
+        )

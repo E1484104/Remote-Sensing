@@ -41,7 +41,7 @@ def plot_results(image_results, lvm_results):
     plt.show()
 
 
-def plot_image_comparison(cam1_results, cam2_results):
+def plot_image_comparison(cam1_results, cam2_results, start_index=0):
 
     if len(cam1_results) != len(cam2_results):
         print("Cam1 results length:", len(cam1_results))
@@ -55,7 +55,7 @@ def plot_image_comparison(cam1_results, cam2_results):
         print("No data available for comparison")
         return
 
-    indices = range(len(cam1_results))
+    indices = range(start_index, start_index + len(cam1_results))
 
     print("Cam1 results length:", len(cam1_results))
     print("Cam2 results length:", len(cam2_results))
@@ -85,7 +85,11 @@ def plot_image_comparison(cam1_results, cam2_results):
     ax2.set_ylabel("Cam2 Result", color="tab:orange")
     ax1.tick_params(axis="y", labelcolor="tab:blue")
     ax2.tick_params(axis="y", labelcolor="tab:orange")
-    ax1.set_title("Cam1 vs Cam2 Image Results")
+    if start_index == 0:
+        ax1.set_title("Cam1 vs Cam2 Image Results")
+    else:
+        end_index = start_index + len(cam1_results) - 1
+        ax1.set_title(f"Cam1 vs Cam2 Image Results ({start_index}-{end_index})")
     ax1.grid(True, alpha=0.3)
 
     lines = line1 + line2

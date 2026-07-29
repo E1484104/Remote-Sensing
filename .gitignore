@@ -24,6 +24,7 @@ data/
 output/
 outputs/
 results/
+extracted_images/
 *.npy
 *.npz
 *.csv

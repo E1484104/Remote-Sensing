@@ -64,6 +64,37 @@ def read_image_matrix(image_path, image_size):
     return image_to_u16_matrix(image, image_path, image_size)
 
 
+def get_sorted_image_paths(folder_path):
+    target_folder = Path(folder_path)
+
+    if not target_folder.exists():
+        raise FileNotFoundError(f"Folder does not exist: {target_folder}")
+    if not target_folder.is_dir():
+        raise NotADirectoryError(f"Path is not a folder: {target_folder}")
+
+    image_paths = []
+    for item in target_folder.iterdir():
+        if item.is_file() and item.suffix.lower() in IMAGE_SUFFIXES:
+            image_paths.append(item)
+
+    return sorted(image_paths, key=image_number_sort_key)
+
+
+def get_result_image_paths(folder_path, skip_count=0):
+    if skip_count < 0:
+        raise ValueError(f"skip_count must not be negative, got {skip_count}")
+
+    sorted_image_paths = get_sorted_image_paths(folder_path)
+
+    if skip_count > len(sorted_image_paths):
+        raise ValueError(
+            f"skip_count is larger than image count, skip_count={skip_count}, "
+            f"image count={len(sorted_image_paths)}"
+        )
+
+    return sorted_image_paths[skip_count:]
+
+
 def calculate_background_noise(image_paths, image_size):
     if len(image_paths) < BACKGROUND_IMAGE_COUNT:
         raise ValueError(
@@ -86,23 +117,12 @@ def calculate_background_noise(image_paths, image_size):
 
 
 def read_images(folder_path, image_size, remove_background=False, skip_count=0):
-    target_folder = Path(folder_path)
-
-    if not target_folder.exists():
-        raise FileNotFoundError(f"Folder does not exist: {target_folder}")
-    if not target_folder.is_dir():
-        raise NotADirectoryError(f"Path is not a folder: {target_folder}")
     if skip_count < 0:
         raise ValueError(f"skip_count must not be negative, got {skip_count}")
     if len(image_size) != 2:
         raise ValueError(f"image_size must be (height, width), got {image_size}")
 
-    image_paths = []
-    for item in target_folder.iterdir():
-        if item.is_file() and item.suffix.lower() in IMAGE_SUFFIXES:
-            image_paths.append(item)
-
-    sorted_image_paths = sorted(image_paths, key=image_number_sort_key)
+    sorted_image_paths = get_sorted_image_paths(folder_path)
 
     if skip_count > len(sorted_image_paths):
         raise ValueError(
