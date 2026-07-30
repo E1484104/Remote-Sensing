@@ -4,8 +4,8 @@ from ExportImages import prompt_and_copy_image_segments
 from PlotResults import plot_image_comparison, plot_results
 
 # ====== SPECIFY TARGET FOLDER PATH ======
-TEST_INDEX = "test8"
-TEST_DATE = "20260728"
+TEST_INDEX = "Tester20_Move"
+TEST_DATE = "20260729"
 TARGET_IMAGE_1 = rf"..\{TEST_DATE}\{TEST_INDEX}\Cam1_Image"
 TARGET_IMAGE_2 = rf"..\{TEST_DATE}\{TEST_INDEX}\Cam2_Image"
 TARGET_LVM_1 = rf"..\{TEST_DATE}\{TEST_INDEX}\Cam1.lvm"
@@ -16,6 +16,7 @@ TARGET_EXTRACTED_IMAGE_2 = rf"..\{TEST_DATE}\{TEST_INDEX}\Cam2_Extracted_Image"
 IMAGE_SIZE_1 = (40, 40)
 IMAGE_SIZE_2 = (20, 20)
 COPY_IMAGE_COUNT = 2000
+SMOOTH_WINDOW = 20
 
 
 def get_processing_settings(image_folder_name):
@@ -55,7 +56,7 @@ if __name__ == '__main__':
     lvm_results2 = read_lvms(TARGET_LVM_2, skip_count=skip_count)
     # plot_results(image_results1, lvm_results1)  # Remote
     # plot_results(image_results2, lvm_results2)  # Contact
-    plot_image_comparison(image_results1, image_results2)
+    plot_image_comparison(image_results1, image_results2, smooth_window=SMOOTH_WINDOW)
 
     copied_result = prompt_and_copy_image_segments(
         {
@@ -84,4 +85,5 @@ if __name__ == '__main__':
             image_results1[start_index:end_index],
             image_results2[start_index:end_index],
             start_index=start_index,
+            smooth_window=SMOOTH_WINDOW,
         )
