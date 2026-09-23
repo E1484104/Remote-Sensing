@@ -116,7 +116,26 @@ def calculate_background_noise(image_paths, image_size):
     return background_noise
 
 
-def read_images(folder_path, image_size, remove_background=False, skip_count=0):
+def save_background_noise(background_noise, output_folder):
+    output_folder = Path(output_folder)
+    output_folder.mkdir(parents=True, exist_ok=True)
+
+    csv_path = output_folder / "background_noise.csv"
+    image_path = output_folder / "background_noise.png"
+
+    # Keep the averaged values in the CSV; PNG pixels must be integers.
+    np.savetxt(csv_path, background_noise, delimiter=",", fmt="%.17g")
+    image_matrix = np.rint(background_noise).astype(np.uint16)
+    if not cv2.imwrite(str(image_path), image_matrix):
+        raise OSError(f"Cannot save background noise image: {image_path}")
+
+    return csv_path, image_path
+
+
+def read_images(
+    folder_path, image_size, remove_background=False, skip_count=0,
+    background_output_folder=None,
+):
     if skip_count < 0:
         raise ValueError(f"skip_count must not be negative, got {skip_count}")
     if len(image_size) != 2:
@@ -133,6 +152,8 @@ def read_images(folder_path, image_size, remove_background=False, skip_count=0):
     background_noise = None
     if remove_background:
         background_noise = calculate_background_noise(sorted_image_paths, image_size)
+        if background_output_folder is not None:
+            save_background_noise(background_noise, background_output_folder)
 
     result_image_paths = sorted_image_paths[skip_count:]
 

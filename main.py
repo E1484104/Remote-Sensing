@@ -12,6 +12,7 @@ TARGET_LVM_1 = rf"..\{TEST_DATE}\{TEST_INDEX}\Cam1.lvm"
 TARGET_LVM_2 = rf"..\{TEST_DATE}\{TEST_INDEX}\Cam2.lvm"
 TARGET_EXTRACTED_IMAGE_1 = rf"..\{TEST_DATE}\{TEST_INDEX}\Cam1_Extracted_Image"
 TARGET_EXTRACTED_IMAGE_2 = rf"..\{TEST_DATE}\{TEST_INDEX}\Cam2_Extracted_Image"
+BG_NOISE = rf"..\{TEST_DATE}\{TEST_INDEX}\Cam2_Noise"
 
 IMAGE_SIZE_1 = (40, 40)
 IMAGE_SIZE_2 = (20, 20)
@@ -50,7 +51,8 @@ if __name__ == '__main__':
         TARGET_IMAGE_2,
         image_size=settings_cam2["image_size"],
         remove_background=settings_cam2["remove_background"],
-        skip_count=skip_count
+        skip_count=skip_count,
+        background_output_folder=BG_NOISE,
     )
     lvm_results1 = read_lvms(TARGET_LVM_1, skip_count=skip_count)
     lvm_results2 = read_lvms(TARGET_LVM_2, skip_count=skip_count)
